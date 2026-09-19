@@ -17,6 +17,7 @@
     <section id="spaces-grid" class="spaces-grid"></section>
   </main>
 
+  <!-- Create Workspace Modal -->
   <dialog id="workspace-modal">
     <form id="workspace-form" method="dialog">
       <h2>Create Workspace</h2>
@@ -37,6 +38,46 @@
       <div class="modal-actions">
         <button type="button" id="cancel-btn" class="secondary-btn">Cancel</button>
         <button type="submit" class="primary-btn">Create</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Edit Workspace Modal -->
+  <dialog id="edit-modal">
+    <form id="edit-form" method="dialog">
+      <h2>Edit Workspace</h2>
+      <input type="hidden" id="edit-id">
+
+      <label for="edit-name">Name</label>
+      <input type="text" id="edit-name" required placeholder="Workspace name">
+
+      <label for="edit-category">Category</label>
+      <select id="edit-category" required>
+        <option value="Project">Project</option>
+        <option value="Study">Study</option>
+        <option value="Todo">Todo</option>
+      </select>
+
+      <label for="edit-desc">Description</label>
+      <textarea id="edit-desc" rows="3" placeholder="Workspace description"></textarea>
+
+      <div class="modal-actions">
+        <button type="button" id="cancel-edit-btn" class="secondary-btn">Cancel</button>
+        <button type="submit" class="primary-btn">Save Changes</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Delete Confirmation Modal -->
+  <dialog id="delete-modal">
+    <form id="delete-form" method="dialog">
+      <h2>Delete Workspace</h2>
+      <p id="delete-prompt-msg"></p>
+      <input type="text" id="delete-confirm-input" placeholder="Type workspace name here" autocomplete="off">
+
+      <div class="modal-actions">
+        <button type="button" id="cancel-delete-btn" class="secondary-btn">Cancel</button>
+        <button type="submit" id="confirm-delete-btn" class="danger-btn" disabled>Delete</button>
       </div>
     </form>
   </dialog>

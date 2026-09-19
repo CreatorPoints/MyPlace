@@ -103,25 +103,25 @@ dialog::backdrop {
   background: rgba(0, 0, 0, 0.7);
 }
 
-#workspace-form {
+dialog form {
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
 }
 
-#workspace-form h2 {
+dialog form h2 {
   color: #ffffff;
   margin-bottom: 0.5rem;
 }
 
-#workspace-form label {
+dialog form label {
   font-size: 0.85rem;
   color: #aaaaaa;
 }
 
-#workspace-form input,
-#workspace-form select,
-#workspace-form textarea {
+dialog form input,
+dialog form select,
+dialog form textarea {
   background-color: #121212;
   border: 1px solid #333333;
   color: #ffffff;
@@ -132,11 +132,21 @@ dialog::backdrop {
   resize: vertical;
 }
 
-#workspace-form input:focus,
-#workspace-form select:focus,
-#workspace-form textarea:focus {
+dialog form input:focus,
+dialog form select:focus,
+dialog form textarea:focus {
   outline: 1px solid #2563eb;
   border-color: #2563eb;
+}
+
+#delete-prompt-msg {
+  color: #cccccc;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+#delete-prompt-msg strong {
+  color: #ef4444;
 }
 
 .category-badge {
@@ -151,6 +161,58 @@ dialog::backdrop {
   padding: 0.2rem 0.5rem;
   border-radius: 4px;
   margin-bottom: 0.6rem;
+}
+
+.card-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.card-btn {
+  background-color: #252525;
+  color: #cccccc;
+  border: 1px solid #383838;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.card-btn:hover {
+  background-color: #333333;
+  color: #ffffff;
+}
+
+.card-btn.delete {
+  color: #f87171;
+  border-color: #4b2323;
+}
+
+.card-btn.delete:hover {
+  background-color: #3f1919;
+  color: #fca5a5;
+}
+
+.danger-btn {
+  background-color: #dc2626;
+  color: #ffffff;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.danger-btn:hover:not(:disabled) {
+  background-color: #b91c1c;
+}
+
+.danger-btn:disabled {
+  background-color: #451a1a;
+  color: #777777;
+  cursor: not-allowed;
 }
 
 .modal-actions {
