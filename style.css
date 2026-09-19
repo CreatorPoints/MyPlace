@@ -120,6 +120,7 @@ dialog::backdrop {
 }
 
 #workspace-form input,
+#workspace-form select,
 #workspace-form textarea {
   background-color: #121212;
   border: 1px solid #333333;
@@ -132,9 +133,24 @@ dialog::backdrop {
 }
 
 #workspace-form input:focus,
+#workspace-form select:focus,
 #workspace-form textarea:focus {
   outline: 1px solid #2563eb;
   border-color: #2563eb;
+}
+
+.category-badge {
+  display: inline-block;
+  align-self: flex-start;
+  background-color: #2b2b2b;
+  color: #93c5fd;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  margin-bottom: 0.6rem;
 }
 
 .modal-actions {

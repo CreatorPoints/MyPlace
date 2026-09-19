@@ -3,6 +3,7 @@ const modal = document.getElementById('workspace-modal');
 const cancelBtn = document.getElementById('cancel-btn');
 const workspaceForm = document.getElementById('workspace-form');
 const nameInput = document.getElementById('workspace-name');
+const categoryInput = document.getElementById('workspace-category');
 const descInput = document.getElementById('workspace-desc');
 const spacesGrid = document.getElementById('spaces-grid');
 
@@ -14,6 +15,7 @@ function renderWorkspaces() {
     const card = document.createElement('div');
     card.className = 'space-card';
     card.innerHTML = `
+      ${ws.category ? `<span class="category-badge">${escapeHtml(ws.category)}</span>` : ''}
       <h2>${escapeHtml(ws.name)}</h2>
       <p>${escapeHtml(ws.desc || '')}</p>
     `;
@@ -43,11 +45,12 @@ cancelBtn.addEventListener('click', () => {
 workspaceForm.addEventListener('submit', (e) => {
   e.preventDefault();
   const name = nameInput.value.trim();
+  const category = categoryInput.value;
   const desc = descInput.value.trim();
 
   if (!name) return;
 
-  workspaces.push({ name, desc });
+  workspaces.push({ name, category, desc });
   localStorage.setItem('myplace_workspaces', JSON.stringify(workspaces));
 
   renderWorkspaces();
