@@ -177,11 +177,25 @@ dialog form textarea:focus {
   border-radius: 4px;
   font-size: 0.85rem;
   cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .card-btn:hover {
   background-color: #333333;
   color: #ffffff;
+}
+
+.card-btn.open {
+  background-color: #2563eb;
+  color: #ffffff;
+  border-color: #1d4ed8;
+}
+
+.card-btn.open:hover {
+  background-color: #1d4ed8;
 }
 
 .card-btn.delete {

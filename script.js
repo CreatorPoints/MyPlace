@@ -46,9 +46,24 @@ function escapeHtml(str) {
   }[m]));
 }
 
+function getSpaceUrl(name) {
+  const slug = encodeURIComponent(
+    name
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+  );
+  const base = window.location.origin && window.location.origin !== 'null'
+    ? window.location.origin
+    : window.location.href.substring(0, window.location.href.lastIndexOf('/'));
+  return `${base}/spaces/${slug}`;
+}
+
 function renderWorkspaces() {
   spacesGrid.innerHTML = '';
   workspaces.forEach((ws) => {
+    const spaceUrl = getSpaceUrl(ws.name);
     const card = document.createElement('div');
     card.className = 'space-card';
     card.innerHTML = `
@@ -56,6 +71,7 @@ function renderWorkspaces() {
       <h2>${escapeHtml(ws.name)}</h2>
       <p>${escapeHtml(ws.desc || '')}</p>
       <div class="card-actions">
+        <a href="${spaceUrl}" class="card-btn open" title="${spaceUrl}">Open</a>
         <button class="card-btn edit" data-id="${ws.id}">Edit</button>
         <button class="card-btn delete" data-id="${ws.id}">Delete</button>
       </div>
