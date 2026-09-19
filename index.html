@@ -35,9 +35,16 @@
       <div class="workspace-workbench">
         <div class="workbench-header">
           <h2>Workspace Notes & Tasks</h2>
-          <span id="save-status" class="save-indicator">Saved</span>
+          <div class="workbench-controls">
+            <div class="tab-group">
+              <button type="button" id="tab-write" class="tab-btn active">Write</button>
+              <button type="button" id="tab-preview" class="tab-btn">Preview</button>
+            </div>
+            <span id="save-status" class="save-indicator">Saved</span>
+          </div>
         </div>
-        <textarea id="workspace-content" placeholder="Start working here... Write down your project plans, notes, todos, or ideas. Auto-saves as you type."></textarea>
+        <textarea id="workspace-content" placeholder="Start working here... Markdown supported! Write :skull:, # headers, - lists, tasks, etc."></textarea>
+        <div id="workspace-preview" class="markdown-preview hidden"></div>
       </div>
     </div>
   </div>

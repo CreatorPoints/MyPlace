@@ -8,6 +8,9 @@ const activeSpaceCategory = document.getElementById('active-space-category');
 const activeSpaceTitle = document.getElementById('active-space-title');
 const activeSpaceDesc = document.getElementById('active-space-desc');
 const workspaceContent = document.getElementById('workspace-content');
+const workspacePreview = document.getElementById('workspace-preview');
+const tabWrite = document.getElementById('tab-write');
+const tabPreview = document.getElementById('tab-preview');
 const saveStatus = document.getElementById('save-status');
 
 // Elements - Create Modal
@@ -98,6 +101,158 @@ function renderWorkspaces() {
   });
 }
 
+// Markdown Parser & Emoji Replacer
+function parseMarkdown(md) {
+  if (!md || !md.trim()) return '<p style="color:#777777;"><em>Nothing to preview</em></p>';
+
+  let text = md
+    .replace(/:skull:/g, '💀')
+    .replace(/:fire:/g, '🔥')
+    .replace(/:rocket:/g, '🚀')
+    .replace(/:heart:/g, '❤️')
+    .replace(/:star:/g, '⭐')
+    .replace(/:check:/g, '✅')
+    .replace(/:cross:/g, '❌')
+    .replace(/:eyes:/g, '👀')
+    .replace(/:tada:/g, '🎉')
+    .replace(/:warning:/g, '⚠️');
+
+  // Extract and preserve code blocks
+  const codeBlocks = [];
+  text = text.replace(/```([a-zA-Z0-9_-]*)\n([\s\S]*?)```/g, (match, lang, code) => {
+    const placeholder = `%%CODE_BLOCK_${codeBlocks.length}%%`;
+    codeBlocks.push(`<pre><code>${escapeHtml(code.trim())}</code></pre>`);
+    return placeholder;
+  });
+
+  // Extract and preserve inline code
+  const inlineCodes = [];
+  text = text.replace(/`([^`]+)`/g, (match, code) => {
+    const placeholder = `%%INLINE_CODE_${inlineCodes.length}%%`;
+    inlineCodes.push(`<code>${escapeHtml(code)}</code>`);
+    return placeholder;
+  });
+
+  // Line-by-line block processing
+  const lines = text.split('\n');
+  const parsedLines = [];
+  let inUl = false;
+  let inOl = false;
+
+  function closeLists() {
+    if (inUl) { parsedLines.push('</ul>'); inUl = false; }
+    if (inOl) { parsedLines.push('</ol>'); inOl = false; }
+  }
+
+  for (let i = 0; i < lines.length; i++) {
+    let line = lines[i];
+    const escaped = escapeHtml(line);
+
+    // Headers
+    if (/^######\s+(.*)/.test(line)) {
+      closeLists();
+      parsedLines.push(`<h6>${escapeHtml(line.replace(/^######\s+/, ''))}</h6>`);
+      continue;
+    }
+    if (/^#####\s+(.*)/.test(line)) {
+      closeLists();
+      parsedLines.push(`<h5>${escapeHtml(line.replace(/^#####\s+/, ''))}</h5>`);
+      continue;
+    }
+    if (/^####\s+(.*)/.test(line)) {
+      closeLists();
+      parsedLines.push(`<h4>${escapeHtml(line.replace(/^####\s+/, ''))}</h4>`);
+      continue;
+    }
+    if (/^###\s+(.*)/.test(line)) {
+      closeLists();
+      parsedLines.push(`<h3>${escapeHtml(line.replace(/^###\s+/, ''))}</h3>`);
+      continue;
+    }
+    if (/^##\s+(.*)/.test(line)) {
+      closeLists();
+      parsedLines.push(`<h2>${escapeHtml(line.replace(/^##\s+/, ''))}</h2>`);
+      continue;
+    }
+    if (/^#\s+(.*)/.test(line)) {
+      closeLists();
+      parsedLines.push(`<h1>${escapeHtml(line.replace(/^#\s+/, ''))}</h1>`);
+      continue;
+    }
+
+    // Horizontal Rule
+    if (/^---+$|^===+$/.test(line.trim())) {
+      closeLists();
+      parsedLines.push('<hr>');
+      continue;
+    }
+
+    // Blockquote
+    if (/^>\s?(.*)/.test(line)) {
+      closeLists();
+      parsedLines.push(`<blockquote>${escapeHtml(line.replace(/^>\s?/, ''))}</blockquote>`);
+      continue;
+    }
+
+    // Task Checkboxes
+    if (/^[-*]\s+\[ \]\s+(.*)/.test(line)) {
+      if (!inUl) { parsedLines.push('<ul>'); inUl = true; }
+      parsedLines.push(`<li style="list-style:none"><input type="checkbox" disabled> ${escapeHtml(line.replace(/^[-*]\s+\[ \]\s+/, ''))}</li>`);
+      continue;
+    }
+    if (/^[-*]\s+\[[xX]\]\s+(.*)/.test(line)) {
+      if (!inUl) { parsedLines.push('<ul>'); inUl = true; }
+      parsedLines.push(`<li style="list-style:none"><input type="checkbox" checked disabled> ${escapeHtml(line.replace(/^[-*]\s+\[[xX]\]\s+/, ''))}</li>`);
+      continue;
+    }
+
+    // Unordered List
+    if (/^[-*]\s+(.*)/.test(line)) {
+      if (inOl) { parsedLines.push('</ol>'); inOl = false; }
+      if (!inUl) { parsedLines.push('<ul>'); inUl = true; }
+      parsedLines.push(`<li>${escapeHtml(line.replace(/^[-*]\s+/, ''))}</li>`);
+      continue;
+    }
+
+    // Ordered List
+    if (/^\d+\.\s+(.*)/.test(line)) {
+      if (inUl) { parsedLines.push('</ul>'); inUl = false; }
+      if (!inOl) { parsedLines.push('<ol>'); inOl = true; }
+      parsedLines.push(`<li>${escapeHtml(line.replace(/^\d+\.\s+/, ''))}</li>`);
+      continue;
+    }
+
+    closeLists();
+
+    if (!line.trim()) {
+      continue;
+    }
+
+    parsedLines.push(`<p>${escaped}</p>`);
+  }
+  closeLists();
+
+  let html = parsedLines.join('');
+
+  // Inline styling: bold, italic, del, links
+  html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/__([^_]+)__/g, '<strong>$1</strong>');
+  html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+  html = html.replace(/_([^_]+)_/g, '<em>$1</em>');
+  html = html.replace(/~~([^~]+)~~/g, '<del>$1</del>');
+  html = html.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+
+  // Restore preserved code blocks & inline code
+  codeBlocks.forEach((block, idx) => {
+    html = html.replace(`%%CODE_BLOCK_${idx}%%`, block);
+  });
+  inlineCodes.forEach((code, idx) => {
+    html = html.replace(`%%INLINE_CODE_${idx}%%`, code);
+  });
+
+  return html;
+}
+
 // Workspace Workbench Navigation
 function openSpace(id, updateHistory = true) {
   const ws = workspaces.find(w => w.id === id);
@@ -109,6 +264,12 @@ function openSpace(id, updateHistory = true) {
   activeSpaceDesc.textContent = ws.desc || '';
   workspaceContent.value = ws.content || '';
   saveStatus.textContent = 'Saved';
+
+  // Default to Write tab
+  tabWrite.classList.add('active');
+  tabPreview.classList.remove('active');
+  workspaceContent.classList.remove('hidden');
+  workspacePreview.classList.add('hidden');
 
   homeView.classList.add('hidden');
   spaceView.classList.remove('hidden');
@@ -144,9 +305,34 @@ backToSpacesBtn.addEventListener('click', () => {
   closeSpace(true);
 });
 
-// Auto-save content inside workspace
+// Tab switching
+tabWrite.addEventListener('click', () => {
+  tabWrite.classList.add('active');
+  tabPreview.classList.remove('active');
+  workspaceContent.classList.remove('hidden');
+  workspacePreview.classList.add('hidden');
+});
+
+tabPreview.addEventListener('click', () => {
+  tabPreview.classList.add('active');
+  tabWrite.classList.remove('active');
+  workspacePreview.innerHTML = parseMarkdown(workspaceContent.value);
+  workspaceContent.classList.add('hidden');
+  workspacePreview.classList.remove('hidden');
+});
+
+// Auto-save & :skull: support in workspace textarea
 workspaceContent.addEventListener('input', () => {
   if (!activeSpaceId) return;
+
+  // Real-time :skull: conversion inside textarea
+  if (workspaceContent.value.includes(':skull:')) {
+    const start = workspaceContent.selectionStart;
+    const oldVal = workspaceContent.value;
+    workspaceContent.value = oldVal.replace(/:skull:/g, '💀');
+    const diff = oldVal.length - workspaceContent.value.length;
+    workspaceContent.setSelectionRange(Math.max(0, start - diff), Math.max(0, start - diff));
+  }
 
   saveStatus.textContent = 'Saving...';
   clearTimeout(saveTimeout);
