@@ -7,15 +7,40 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <h1>MySpace</h1>
-    <p>Manage your custom spaces</p>
-    <button id="open-modal-btn" class="primary-btn">+ Create Workspace</button>
-  </header>
+  <!-- Home View: Spaces Grid -->
+  <div id="home-view">
+    <header>
+      <h1>MySpace</h1>
+      <p>Manage your custom spaces</p>
+      <button id="open-modal-btn" class="primary-btn">+ Create Workspace</button>
+    </header>
 
-  <main>
-    <section id="spaces-grid" class="spaces-grid"></section>
-  </main>
+    <main>
+      <section id="spaces-grid" class="spaces-grid"></section>
+    </main>
+  </div>
+
+  <!-- Space Workbench View -->
+  <div id="space-view" class="hidden">
+    <div class="workspace-page">
+      <div class="workspace-topbar">
+        <button id="back-to-spaces-btn" class="secondary-btn">← Spaces</button>
+        <div class="workspace-title-area">
+          <span id="active-space-category" class="category-badge"></span>
+          <h1 id="active-space-title"></h1>
+          <p id="active-space-desc"></p>
+        </div>
+      </div>
+
+      <div class="workspace-workbench">
+        <div class="workbench-header">
+          <h2>Workspace Notes & Tasks</h2>
+          <span id="save-status" class="save-indicator">Saved</span>
+        </div>
+        <textarea id="workspace-content" placeholder="Start working here... Write down your project plans, notes, todos, or ideas. Auto-saves as you type."></textarea>
+      </div>
+    </div>
+  </div>
 
   <!-- Create Workspace Modal -->
   <dialog id="workspace-modal">
