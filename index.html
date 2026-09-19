@@ -10,28 +10,30 @@
   <header>
     <h1>MySpace</h1>
     <p>Manage your custom spaces</p>
+    <button id="open-modal-btn" class="primary-btn">+ Create Workspace</button>
   </header>
 
   <main>
-    <section class="spaces-grid">
-      <div class="space-card">
-        <h2>Personal</h2>
-        <p>Manage personal links and notes.</p>
-        <button class="manage-btn">Manage</button>
-      </div>
-
-      <div class="space-card">
-        <h2>Work</h2>
-        <p>Manage work-related projects and tasks.</p>
-        <button class="manage-btn">Manage</button>
-      </div>
-
-      <div class="space-card">
-        <h2>Projects</h2>
-        <p>Manage active builds and repositories.</p>
-        <button class="manage-btn">Manage</button>
-      </div>
-    </section>
+    <section id="spaces-grid" class="spaces-grid"></section>
   </main>
+
+  <dialog id="workspace-modal">
+    <form id="workspace-form" method="dialog">
+      <h2>Create Workspace</h2>
+      
+      <label for="workspace-name">Name</label>
+      <input type="text" id="workspace-name" required placeholder="Workspace name">
+
+      <label for="workspace-desc">Description</label>
+      <textarea id="workspace-desc" rows="3" placeholder="Workspace description"></textarea>
+
+      <div class="modal-actions">
+        <button type="button" id="cancel-btn" class="secondary-btn">Cancel</button>
+        <button type="submit" class="primary-btn">Create</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="script.js"></script>
 </body>
 </html>

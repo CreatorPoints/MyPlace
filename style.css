@@ -26,6 +26,36 @@ header h1 {
 header p {
   color: #888888;
   font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+}
+
+.primary-btn {
+  background-color: #2563eb;
+  color: #ffffff;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.primary-btn:hover {
+  background-color: #1d4ed8;
+}
+
+.secondary-btn {
+  background-color: transparent;
+  color: #cccccc;
+  border: 1px solid #444444;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.secondary-btn:hover {
+  background-color: #2a2a2a;
 }
 
 .spaces-grid {
@@ -43,7 +73,6 @@ header p {
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
 }
 
 .space-card h2 {
@@ -55,19 +84,62 @@ header p {
 .space-card p {
   color: #aaaaaa;
   font-size: 0.95rem;
-  margin-bottom: 1.5rem;
+  line-height: 1.4;
 }
 
-.manage-btn {
-  align-self: flex-start;
-  background-color: #2b2b2b;
+/* Modal styling */
+dialog {
+  background-color: #1e1e1e;
+  color: #e0e0e0;
+  border: 1px solid #333333;
+  border-radius: 8px;
+  padding: 2rem;
+  max-width: 420px;
+  width: 90%;
+  margin: auto;
+}
+
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+#workspace-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+#workspace-form h2 {
   color: #ffffff;
-  border: 1px solid #444444;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  cursor: pointer;
+  margin-bottom: 0.5rem;
 }
 
-.manage-btn:hover {
-  background-color: #3b3b3b;
+#workspace-form label {
+  font-size: 0.85rem;
+  color: #aaaaaa;
+}
+
+#workspace-form input,
+#workspace-form textarea {
+  background-color: #121212;
+  border: 1px solid #333333;
+  color: #ffffff;
+  padding: 0.6rem;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  resize: vertical;
+}
+
+#workspace-form input:focus,
+#workspace-form textarea:focus {
+  outline: 1px solid #2563eb;
+  border-color: #2563eb;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.8rem;
+  margin-top: 1rem;
 }
