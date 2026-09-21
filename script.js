@@ -12,6 +12,7 @@ const workspacePreview = document.getElementById('workspace-preview');
 const tabWrite = document.getElementById('tab-write');
 const tabPreview = document.getElementById('tab-preview');
 const saveStatus = document.getElementById('save-status');
+const modeBadge = document.getElementById('mode-badge');
 
 // Elements - Create Modal
 const openModalBtn = document.getElementById('open-modal-btn');
@@ -120,7 +121,7 @@ function parseMarkdown(md) {
   // Extract and preserve code blocks
   const codeBlocks = [];
   text = text.replace(/```([a-zA-Z0-9_-]*)\n([\s\S]*?)```/g, (match, lang, code) => {
-    const placeholder = `%%CODE_BLOCK_${codeBlocks.length}%%`;
+    const placeholder = `§§CODEBLOCK${codeBlocks.length}§§`;
     codeBlocks.push(`<pre><code>${escapeHtml(code.trim())}</code></pre>`);
     return placeholder;
   });
@@ -128,7 +129,7 @@ function parseMarkdown(md) {
   // Extract and preserve inline code
   const inlineCodes = [];
   text = text.replace(/`([^`]+)`/g, (match, code) => {
-    const placeholder = `%%INLINE_CODE_${inlineCodes.length}%%`;
+    const placeholder = `§§INLINECODE${inlineCodes.length}§§`;
     inlineCodes.push(`<code>${escapeHtml(code)}</code>`);
     return placeholder;
   });
@@ -224,6 +225,11 @@ function parseMarkdown(md) {
 
     closeLists();
 
+    if (/^§§CODEBLOCK\d+§§$/.test(line.trim())) {
+      parsedLines.push(line.trim());
+      continue;
+    }
+
     if (!line.trim()) {
       continue;
     }
@@ -234,26 +240,88 @@ function parseMarkdown(md) {
 
   let html = parsedLines.join('');
 
-  // Inline styling: bold, italic, del, links
+  // Inline styling: bold, italic, del, links, images, emoji
   html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
   html = html.replace(/__([^_]+)__/g, '<strong>$1</strong>');
   html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
   html = html.replace(/_([^_]+)_/g, '<em>$1</em>');
   html = html.replace(/~~([^~]+)~~/g, '<del>$1</del>');
+  html = html.replace(/!\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)/g, '<img src="$2" alt="$1" class="preview-img">');
   html = html.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+  html = html.replace(/:skull:/g, '💀');
 
   // Restore preserved code blocks & inline code
   codeBlocks.forEach((block, idx) => {
-    html = html.replace(`%%CODE_BLOCK_${idx}%%`, block);
+    html = html.replace(`§§CODEBLOCK${idx}§§`, block);
   });
   inlineCodes.forEach((code, idx) => {
-    html = html.replace(`%%INLINE_CODE_${idx}%%`, code);
+    html = html.replace(`§§INLINECODE${idx}§§`, code);
   });
 
   return html;
 }
 
-// Workspace Workbench Navigation
+// Workspace Workbench Navigation & Reading/Edit Modes
+function setReadingMode() {
+  if (activeSpaceId && saveTimeout) {
+    clearTimeout(saveTimeout);
+    const ws = workspaces.find(w => w.id === activeSpaceId);
+    if (ws) {
+      ws.content = workspaceContent.value;
+      saveWorkspaces();
+      saveStatus.textContent = 'Saved';
+    }
+  }
+
+  const content = workspaceContent.value || '';
+  if (content.trim()) {
+    workspacePreview.innerHTML = parseMarkdown(content);
+  } else {
+    workspacePreview.innerHTML = `
+      <div class="empty-reading-state">
+        <div class="empty-icon">📝</div>
+        <h3>No notes in this space yet</h3>
+        <p>This workspace document is empty. Switch to edit mode to start writing notes, tasks, or markdown.</p>
+        <button type="button" class="mode-btn primary-btn empty-edit-btn" id="empty-state-edit-btn">
+          <span class="btn-icon">✏️</span> Edit Mode
+        </button>
+      </div>
+    `;
+    const emptyBtn = workspacePreview.querySelector('#empty-state-edit-btn');
+    if (emptyBtn) {
+      emptyBtn.addEventListener('click', setEditMode);
+    }
+  }
+
+  workspaceContent.classList.add('hidden');
+  workspacePreview.classList.remove('hidden');
+
+  tabWrite.classList.remove('hidden'); // Show "Edit Mode" button
+  tabPreview.classList.add('hidden');   // Hide "Reading Mode" button
+  saveStatus.classList.add('hidden');
+
+  if (modeBadge) {
+    modeBadge.textContent = 'Reading';
+    modeBadge.className = 'mode-badge reading';
+  }
+}
+
+function setEditMode() {
+  workspacePreview.classList.add('hidden');
+  workspaceContent.classList.remove('hidden');
+
+  tabWrite.classList.add('hidden');      // Hide "Edit Mode" button
+  tabPreview.classList.remove('hidden'); // Show "Reading Mode" button
+  saveStatus.classList.remove('hidden');
+
+  if (modeBadge) {
+    modeBadge.textContent = 'Editing';
+    modeBadge.className = 'mode-badge editing';
+  }
+
+  workspaceContent.focus();
+}
+
 function openSpace(id, updateHistory = true) {
   const ws = workspaces.find(w => w.id === id);
   if (!ws) return;
@@ -265,11 +333,8 @@ function openSpace(id, updateHistory = true) {
   workspaceContent.value = ws.content || '';
   saveStatus.textContent = 'Saved';
 
-  // Default to Write tab
-  tabWrite.classList.add('active');
-  tabPreview.classList.remove('active');
-  workspaceContent.classList.remove('hidden');
-  workspacePreview.classList.add('hidden');
+  // Default to Reading Mode
+  setReadingMode();
 
   homeView.classList.add('hidden');
   spaceView.classList.remove('hidden');
@@ -287,6 +352,15 @@ function openSpace(id, updateHistory = true) {
 }
 
 function closeSpace(updateHistory = true) {
+  if (activeSpaceId && saveTimeout) {
+    clearTimeout(saveTimeout);
+    const ws = workspaces.find(w => w.id === activeSpaceId);
+    if (ws) {
+      ws.content = workspaceContent.value;
+      saveWorkspaces();
+    }
+  }
+
   activeSpaceId = null;
   spaceView.classList.add('hidden');
   homeView.classList.remove('hidden');
@@ -305,20 +379,22 @@ backToSpacesBtn.addEventListener('click', () => {
   closeSpace(true);
 });
 
-// Tab switching
-tabWrite.addEventListener('click', () => {
-  tabWrite.classList.add('active');
-  tabPreview.classList.remove('active');
-  workspaceContent.classList.remove('hidden');
-  workspacePreview.classList.add('hidden');
-});
+// Mode switching
+tabWrite.addEventListener('click', setEditMode);
+tabPreview.addEventListener('click', setReadingMode);
 
-tabPreview.addEventListener('click', () => {
-  tabPreview.classList.add('active');
-  tabWrite.classList.remove('active');
-  workspacePreview.innerHTML = parseMarkdown(workspaceContent.value);
-  workspaceContent.classList.add('hidden');
-  workspacePreview.classList.remove('hidden');
+// Keyboard shortcut: Ctrl+E or Cmd+E toggles between Reading and Edit modes
+window.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'e') {
+    if (activeSpaceId && !spaceView.classList.contains('hidden')) {
+      e.preventDefault();
+      if (workspaceContent.classList.contains('hidden')) {
+        setEditMode();
+      } else {
+        setReadingMode();
+      }
+    }
+  }
 });
 
 // Auto-save & :skull: support in workspace textarea

@@ -34,17 +34,22 @@
 
       <div class="workspace-workbench">
         <div class="workbench-header">
-          <h2>Workspace Notes & Tasks</h2>
+          <div class="workbench-header-left">
+            <h2>Workspace Document</h2>
+            <span id="mode-badge" class="mode-badge reading">Reading</span>
+          </div>
           <div class="workbench-controls">
-            <div class="tab-group">
-              <button type="button" id="tab-write" class="tab-btn active">Write</button>
-              <button type="button" id="tab-preview" class="tab-btn">Preview</button>
-            </div>
-            <span id="save-status" class="save-indicator">Saved</span>
+            <span id="save-status" class="save-indicator hidden">Saved</span>
+            <button type="button" id="tab-write" class="mode-btn primary-btn" title="Switch to Edit Mode">
+              <span class="btn-icon">✏️</span> Edit Mode
+            </button>
+            <button type="button" id="tab-preview" class="mode-btn secondary-btn hidden" title="Switch to Reading Mode">
+              <span class="btn-icon">📖</span> Reading Mode
+            </button>
           </div>
         </div>
-        <textarea id="workspace-content" placeholder="Start working here... Markdown supported! Write :skull:, # headers, - lists, tasks, etc."></textarea>
-        <div id="workspace-preview" class="markdown-preview hidden"></div>
+        <textarea id="workspace-content" class="hidden" placeholder="Start working here... Markdown supported! Write :skull:, # headers, - lists, tasks, etc."></textarea>
+        <div id="workspace-preview" class="markdown-preview"></div>
       </div>
     </div>
   </div>
