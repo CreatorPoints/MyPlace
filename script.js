@@ -273,7 +273,7 @@ function openSpace(id, updateHistory = true) {
 
   homeView.classList.add('hidden');
   spaceView.classList.remove('hidden');
-  document.title = `${ws.name} - MySpace`;
+  document.title = `${ws.name} - MyPlace`;
 
   if (updateHistory) {
     const slug = getSpaceSlug(ws.name);
@@ -290,7 +290,7 @@ function closeSpace(updateHistory = true) {
   activeSpaceId = null;
   spaceView.classList.add('hidden');
   homeView.classList.remove('hidden');
-  document.title = 'MySpace';
+  document.title = 'MyPlace';
 
   if (updateHistory) {
     try {
